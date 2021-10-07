@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    init(); //退出时还原游戏
     delete ui;
 }
 
@@ -67,6 +68,16 @@ void MainWindow:: init()
     CloseHandle(hProcess);
 }
 
+void  MainWindow:: hookFunction(bool flag, DWORD baseAddress, byte bufEnable[],byte bufDisable[],int sizeofEn,int sizeofDis)
+{
+    if(flag){
+        WriteProcessMemory(hProcess,(void*)(baseAddress),bufEnable, sizeofEn, 0);
+    }
+    else{
+        WriteProcessMemory(hProcess,(void*)(baseAddress), bufDisable, sizeofDis, 0);
+    }
+}
+
 void MainWindow::addSun()
 {
     DWORD baseAddress= SUN_ADDRESS; //阳光基址
@@ -91,12 +102,14 @@ void MainWindow::sunNotDecrease(bool flag)
     byte bufEnable[] = {0x01,0xDE};   //add esi,ebx
     byte bufDisable[] = {0x29,0xDE};   //sub esi,ebx
 
-    if(flag){
-        WriteProcessMemory(hProcess,(void*)(baseAddress),bufEnable, sizeof(bufEnable), 0);
-    }
-    else{
-        WriteProcessMemory(hProcess,(void*)(baseAddress), bufDisable, sizeof(bufDisable), 0);
-    }
+    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufEnable), sizeof (bufDisable));
+
+//    if(flag){
+//        WriteProcessMemory(hProcess,(void*)(baseAddress),bufEnable, sizeof(bufEnable), 0);
+//    }
+//    else{
+//        WriteProcessMemory(hProcess,(void*)(baseAddress), bufDisable, sizeof(bufDisable), 0);
+//    }
 }
 
 void MainWindow:: plantLockHP(bool flag)
@@ -105,12 +118,7 @@ void MainWindow:: plantLockHP(bool flag)
     byte bufEnable[] = {0x83,0x46,0x40,0x00};   //add dword ptr [esi+40],0
     byte bufDisable[] = {0x83,0x46,0x40,0xFC};   //add dword ptr [esi+40],-04
 
-    if(flag){
-        WriteProcessMemory(hProcess,(void*)(baseAddress),bufEnable, sizeof(bufEnable), 0);
-    }
-    else{
-        WriteProcessMemory(hProcess,(void*)(baseAddress), bufDisable, sizeof(bufDisable), 0);
-    }
+    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufEnable), sizeof (bufDisable));
 }
 
 void MainWindow:: coolDown(bool flag)
@@ -119,12 +127,7 @@ void MainWindow:: coolDown(bool flag)
     byte bufEnable[] = {0xC6,0x43,0x48,0x01};   //mov byte ptr [ebx+48],01
     byte bufDisable[] = {0xC6,0x43,0x48,0x00};   //mov byte ptr [ebx+48],00
 
-    if(flag){
-        WriteProcessMemory(hProcess,(void*)(baseAddress),bufEnable, sizeof(bufEnable), 0);
-    }
-    else{
-        WriteProcessMemory(hProcess,(void*)(baseAddress), bufDisable, sizeof(bufDisable), 0);
-    }
+    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufEnable), sizeof (bufDisable));
 }
 
 void MainWindow:: autoCollect(bool flag)
@@ -133,12 +136,7 @@ void MainWindow:: autoCollect(bool flag)
     byte bufEnable[] = {0x80,0x7B,0x50,0x01};   //cmp byte ptr [ebx+50],01
     byte bufDisable[] = {0x80,0x7B,0x50,0x00};   //cmp byte ptr [ebx+50],00
 
-    if(flag){
-        WriteProcessMemory(hProcess,(void*)(baseAddress),bufEnable, sizeof(bufEnable), 0);
-    }
-    else{
-        WriteProcessMemory(hProcess,(void*)(baseAddress), bufDisable, sizeof(bufDisable), 0);
-    }
+    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufEnable), sizeof (bufDisable));
 }
 
 void MainWindow::test()

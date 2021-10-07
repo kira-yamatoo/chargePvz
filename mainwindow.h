@@ -20,6 +20,7 @@ public:
     void init();
 
     void addSun();
+    void hookFunction(bool flag, DWORD baseAddress, byte bufEnable[],byte bufDisable[],int sizeofEn,int sizeofDis);
     void sunNotDecrease(bool flag);
     void plantLockHP(bool flag);
     void coolDown(bool flag);
