@@ -1,10 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QTimer.h>
 #include <QMessageBox>
 #include <QDebug>
-
+#include <MemoryUtil.h>
+#include <Address.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -15,6 +15,8 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowTitle("chargePvz");
     this->setFixedSize(800,600);
     this->setWindowIcon(QIcon());
+
+    test();
 
     readProcess();
 
@@ -44,24 +46,48 @@ bool MainWindow::readProcess()
     return true;
 }
 
+void MainWindow:: init()
+{
+    //获取进程
+    if(!readProcess())
+        return;
+
+    sunNotDecrease(false);
+    plantLockHP(false);
+    coolDown(false);
+    autoCollect(false);
+
+    this->ui->sunNotDecreaseCheckBox->setCheckState(Qt::CheckState(false));
+    this->ui->plantLockHPCheckBox->setCheckState(Qt::CheckState(false));
+    this->ui->coolDownCheckBox->setCheckState(Qt::CheckState(false));
+    this->ui->autoCollectCheckBox->setCheckState(Qt::CheckState(false));
+
+
+    //释放句柄
+    CloseHandle(hProcess);
+}
+
 void MainWindow::addSun()
 {
-    DWORD sunBaseAddress= 0x00755E0C; //阳光基址
-    DWORD offSetFirst= 0x868;   //一级偏移
-    DWORD offSetSecond= 0x5578; //二级偏移
+    DWORD baseAddress= SUN_ADDRESS; //阳光基址
+    DWORD offSetFirst= SUN_ADDRESS_OFFSET_FIRST;   //一级偏移
+    DWORD offSetSecond= SUN_ADDRESS_OFFSET_SECOND; //二级偏移
     DWORD tempAddr;
 
-    DWORD sunValue=1000;    //阳光值
+    DWORD sunValue;    //阳光值
 
-    DWORD dwSize = 0;
-    ReadProcessMemory(hProcess,(void*)(sunBaseAddress), &tempAddr, sizeof(DWORD), &dwSize);
-    ReadProcessMemory(hProcess,(void*)(tempAddr+ offSetFirst), &tempAddr, sizeof(DWORD), &dwSize);
-    WriteProcessMemory(hProcess,(void*)(tempAddr+ offSetSecond), &sunValue, sizeof(DWORD), &dwSize);
+    ReadProcessMemory(hProcess,(void*)(baseAddress), &tempAddr, sizeof(DWORD), 0);
+    ReadProcessMemory(hProcess,(void*)(tempAddr+ offSetFirst), &tempAddr, sizeof(DWORD), 0);
+    ReadProcessMemory(hProcess,(void*)(tempAddr+ offSetSecond), &sunValue, sizeof(DWORD), 0);
+    if(sunValue<=500){
+        sunValue=2333;
+        WriteProcessMemory(hProcess,(void*)(tempAddr+ offSetSecond), &sunValue, sizeof(DWORD), 0);
+    }
 }
 
 void MainWindow::sunNotDecrease(bool flag)
 {
-    DWORD baseAddress= 0x00427694;    //减少阳光基址
+    DWORD baseAddress= SUN_NOT_DECREASE;    //减少阳光基址
     byte bufEnable[] = {0x01,0xDE};   //add esi,ebx
     byte bufDisable[] = {0x29,0xDE};   //sub esi,ebx
 
@@ -72,9 +98,10 @@ void MainWindow::sunNotDecrease(bool flag)
         WriteProcessMemory(hProcess,(void*)(baseAddress), bufDisable, sizeof(bufDisable), 0);
     }
 }
+
 void MainWindow:: plantLockHP(bool flag)
 {
-    DWORD baseAddress= 0x0054BA6A;    //减少植物HP基址
+    DWORD baseAddress= PLANT_LOCK_HP;    //减少植物HP基址
     byte bufEnable[] = {0x83,0x46,0x40,0x00};   //add dword ptr [esi+40],0
     byte bufDisable[] = {0x83,0x46,0x40,0xFC};   //add dword ptr [esi+40],-04
 
@@ -88,7 +115,7 @@ void MainWindow:: plantLockHP(bool flag)
 
 void MainWindow:: coolDown(bool flag)
 {
-    DWORD baseAddress= 0x0049E944;    //植物冷却flag基址
+    DWORD baseAddress= COOL_DOWN;    //植物冷却flag基址
     byte bufEnable[] = {0xC6,0x43,0x48,0x01};   //mov byte ptr [ebx+48],01
     byte bufDisable[] = {0xC6,0x43,0x48,0x00};   //mov byte ptr [ebx+48],00
 
@@ -102,7 +129,7 @@ void MainWindow:: coolDown(bool flag)
 
 void MainWindow:: autoCollect(bool flag)
 {
-    DWORD baseAddress= 0x0043CC6E;    //点击掉落物flag基址
+    DWORD baseAddress= AUTO_COLLECT;    //点击掉落物flag基址
     byte bufEnable[] = {0x80,0x7B,0x50,0x01};   //cmp byte ptr [ebx+50],01
     byte bufDisable[] = {0x80,0x7B,0x50,0x00};   //cmp byte ptr [ebx+50],00
 
@@ -112,6 +139,23 @@ void MainWindow:: autoCollect(bool flag)
     else{
         WriteProcessMemory(hProcess,(void*)(baseAddress), bufDisable, sizeof(bufDisable), 0);
     }
+}
+
+void MainWindow::test()
+{
+    int a = 40;
+    int b;
+    asm ("movl %1, %%eax; \
+    shr %%eax; \
+    movl %%eax, %0;"
+    : "=r" (b)
+    : "r" (a)
+    : "%eax");
+    printf ("a = %d\nb = %d\n", a, b);
+
+//    __asm__("movl %esp,%eax");
+
+
 }
 
 
@@ -172,4 +216,9 @@ void MainWindow::on_autoCollectCheckBox_stateChanged(int arg1)
 
     //释放句柄
     CloseHandle(hProcess);
+}
+
+void MainWindow::on_actionInit_triggered()
+{
+    init();
 }

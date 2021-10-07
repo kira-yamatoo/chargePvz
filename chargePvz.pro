@@ -20,6 +20,8 @@ SOURCES += \
     mainwindow.cpp
 
 HEADERS += \
+    Address.h \
+    MemoryUtil.h \
     mainwindow.h
 
 FORMS += \

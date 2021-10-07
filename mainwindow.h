@@ -17,11 +17,15 @@ public:
     ~MainWindow();
 
     bool readProcess();
+    void init();
+
     void addSun();
     void sunNotDecrease(bool flag);
     void plantLockHP(bool flag);
     void coolDown(bool flag);
     void autoCollect(bool flag);
+    void test();
+
 
 public:
     HANDLE hProcess=NULL;
@@ -37,6 +41,9 @@ private slots:
     void on_coolDownCheckBox_stateChanged(int arg1);
 
     void on_autoCollectCheckBox_stateChanged(int arg1);
+
+
+    void on_actionInit_triggered();
 
 private:
     Ui::MainWindow *ui;
