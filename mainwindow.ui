@@ -82,6 +82,71 @@
      <string>自动收集</string>
     </property>
    </widget>
+   <widget class="QCheckBox" name="doomShroomCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>270</y>
+      <width>111</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>毁灭菇部署</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="potatoMineDeployCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>330</y>
+      <width>111</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>土豆雷部署</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="cobCannoDeployCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>300</y>
+      <width>121</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>玉米加农部署</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="chomperDeployCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>360</y>
+      <width>111</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>大嘴花部署</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="magnetShroomDeployCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>390</y>
+      <width>101</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>磁力菇部署</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

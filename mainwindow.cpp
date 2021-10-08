@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->setFixedSize(800,600);
     this->setWindowIcon(QIcon());
 
-    test();
+//    test();
 
     readProcess();
 
@@ -68,13 +68,24 @@ void MainWindow:: init()
     CloseHandle(hProcess);
 }
 
-void  MainWindow:: hookFunction(bool flag, DWORD baseAddress, byte bufEnable[],byte bufDisable[],int sizeofEn,int sizeofDis)
+byte* MainWindow:: replaceWithNop(int len)
+{
+    byte nop={0x90};    //传入长度len并返回长度为len的byte数组,并全部使用空指令nop替代
+    static byte temp[]={};
+    for(int i=0;i<len; i++)
+    {
+        temp[i]= nop;
+    }
+    return temp;
+}
+
+void  MainWindow:: hookFunction(bool flag, DWORD baseAddress, byte bufEnable[],byte bufDisable[],int len)
 {
     if(flag){
-        WriteProcessMemory(hProcess,(void*)(baseAddress),bufEnable, sizeofEn, 0);
+        WriteProcessMemory(hProcess,(void*)(baseAddress),bufEnable, len, 0);
     }
     else{
-        WriteProcessMemory(hProcess,(void*)(baseAddress), bufDisable, sizeofDis, 0);
+        WriteProcessMemory(hProcess,(void*)(baseAddress), bufDisable, len, 0);
     }
 }
 
@@ -99,60 +110,117 @@ void MainWindow::addSun()
 void MainWindow::sunNotDecrease(bool flag)
 {
     DWORD baseAddress= SUN_NOT_DECREASE;    //减少阳光基址
-    byte bufEnable[] = {0x01,0xDE};   //add esi,ebx
+
     byte bufDisable[] = {0x29,0xDE};   //sub esi,ebx
+    byte *bufEnable= replaceWithNop(sizeof (bufDisable));
 
-    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufEnable), sizeof (bufDisable));
-
-//    if(flag){
-//        WriteProcessMemory(hProcess,(void*)(baseAddress),bufEnable, sizeof(bufEnable), 0);
-//    }
-//    else{
-//        WriteProcessMemory(hProcess,(void*)(baseAddress), bufDisable, sizeof(bufDisable), 0);
-//    }
+    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufDisable));
 }
 
 void MainWindow:: plantLockHP(bool flag)
 {
     DWORD baseAddress= PLANT_LOCK_HP;    //减少植物HP基址
-    byte bufEnable[] = {0x83,0x46,0x40,0x00};   //add dword ptr [esi+40],0
-    byte bufDisable[] = {0x83,0x46,0x40,0xFC};   //add dword ptr [esi+40],-04
 
-    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufEnable), sizeof (bufDisable));
+    byte bufDisable[] = {0x83,0x46,0x40,0xFC};   //add dword ptr [esi+40],-04
+    byte *bufEnable= replaceWithNop(sizeof (bufDisable));
+
+    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufDisable));
 }
 
 void MainWindow:: coolDown(bool flag)
 {
     DWORD baseAddress= COOL_DOWN;    //植物冷却flag基址
-    byte bufEnable[] = {0xC6,0x43,0x48,0x01};   //mov byte ptr [ebx+48],01
-    byte bufDisable[] = {0xC6,0x43,0x48,0x00};   //mov byte ptr [ebx+48],00
 
-    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufEnable), sizeof (bufDisable));
+    byte bufDisable[] = {0xC6,0x43,0x48,0x00};   //mov byte ptr [ebx+48],00
+    byte *bufEnable= replaceWithNop(sizeof (bufDisable));
+
+    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufDisable));
 }
 
 void MainWindow:: autoCollect(bool flag)
 {
     DWORD baseAddress= AUTO_COLLECT;    //点击掉落物flag基址
-    byte bufEnable[] = {0x80,0x7B,0x50,0x01};   //cmp byte ptr [ebx+50],01
-    byte bufDisable[] = {0x80,0x7B,0x50,0x00};   //cmp byte ptr [ebx+50],00
 
-    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufEnable), sizeof (bufDisable));
+    byte bufDisable[] = {0x80,0x7B,0x50,0x00};   //cmp byte ptr [ebx+50],00
+    byte bufEnable[] = {0x80,0x7B,0x50,0x01};   //cmp byte ptr [ebx+50],01
+
+    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufDisable));
+}
+
+void MainWindow:: doomShroomDeploy(bool flag)
+{
+    DWORD baseAddress= DOOM_SHROOM_DEPLOY;    //毁灭菇部署倒计时赋值基址
+    byte bufDisable[] = {0xC7,0x40,0x18,0x50,0x46,0x00,0x00};   //mov [eax+18],00004650
+    byte *bufEnable= replaceWithNop(sizeof (bufDisable));
+
+    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufDisable));
+}
+
+void MainWindow:: cobCannoDeploy(bool flag)
+{
+    DWORD baseAddress= COB_CANNNO_DEPLOY;    //玉米加农部署倒计时赋值基址
+
+    byte bufDisable[] = {0xC7,0x47,0x54,0xB8,0x0b,0x00,0x00};   //mov [edi+54],00000BB8
+    byte *bufEnable= replaceWithNop(sizeof (bufDisable));
+
+    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufDisable));
+}
+
+void MainWindow:: potatoMineDeploy(bool flag)
+{
+    DWORD baseAddress= POTATO_MINE_DEPLOY;    //土豆雷部署倒计时赋值基址
+
+    byte bufDisable[] = {0xC7,0x40,0x54,0xDC,0x05,0x00,0x00};   //mov [eax+54],000005DC
+    byte *bufEnable= replaceWithNop(sizeof (bufDisable));
+
+    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufDisable));
+}
+
+void MainWindow:: chomperDeploy(bool flag)
+{
+    DWORD baseAddress= CHOMPER_DEPLOY;    //大嘴花部署倒计时赋值基址
+
+    byte bufDisable[] = {0xC7,0x47,0x54,0xA0,0x0F,0x00,0x00};   //mov [edi+54],00000FA0
+    byte *bufEnable= replaceWithNop(sizeof (bufDisable));
+
+    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufDisable));
+}
+
+void MainWindow:: magnetShroomDeploy(bool flag)
+{
+    DWORD baseAddress= MAGNET_SHROOM_DEPLOY;    //磁力菇部署倒计时赋值基址
+
+    byte bufDisable[] = {0xC7,0x46,0x54,0xDC,0x05,0x00,0x00};   //mov [esi+54],000005DC
+    byte *bufEnable= replaceWithNop(sizeof (bufDisable));
+
+    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufDisable));
 }
 
 void MainWindow::test()
 {
-    int a = 40;
-    int b;
-    asm ("movl %1, %%eax; \
-    shr %%eax; \
-    movl %%eax, %0;"
-    : "=r" (b)
-    : "r" (a)
-    : "%eax");
-    printf ("a = %d\nb = %d\n", a, b);
+//    int a = 40;
+//    int b;
+//    asm ("movl %1, %%eax; \
+//    shr %%eax; \
+//    movl %%eax, %0;"
+//    : "=r" (b)
+//    : "r" (a)
+//    : "%eax");
+//    printf ("a = %d\nb = %d\n", a, b);
 
-//    __asm__("movl %esp,%eax");
-
+//    __asm__("alloc(newmen,20)");
+//    __asm__("createthread(newmen)");
+//    __asm__("newmen:");
+//    __asm__("pushad");
+//    __asm__("push -1");
+//    __asm__("push 4");
+//    __asm__("mov eax,0");
+//    __asm__("mov ebp,[731C50]");
+//    __asm__("mov ebp,[ebp+868]");
+//    __asm__("push ebp");
+//    __asm__("call 004105A0");
+//    __asm__("popad");
+//    __asm__("ret");
 
 }
 
@@ -219,4 +287,59 @@ void MainWindow::on_autoCollectCheckBox_stateChanged(int arg1)
 void MainWindow::on_actionInit_triggered()
 {
     init();
+}
+
+void MainWindow::on_doomShroomCheckBox_stateChanged(int arg1)
+{
+    //获取进程
+    if(!readProcess())
+        return;
+    doomShroomDeploy(arg1);
+
+    //释放句柄
+    CloseHandle(hProcess);
+}
+
+void MainWindow::on_cobCannoDeployCheckBox_stateChanged(int arg1)
+{
+    //获取进程
+    if(!readProcess())
+        return;
+    cobCannoDeploy(arg1);
+
+    //释放句柄
+    CloseHandle(hProcess);
+}
+
+void MainWindow::on_potatoMineDeployCheckBox_stateChanged(int arg1)
+{
+    //获取进程
+    if(!readProcess())
+        return;
+    potatoMineDeploy(arg1);
+
+    //释放句柄
+    CloseHandle(hProcess);
+}
+
+void MainWindow::on_chomperDeployCheckBox_stateChanged(int arg1)
+{
+    //获取进程
+    if(!readProcess())
+        return;
+    chomperDeploy(arg1);
+
+    //释放句柄
+    CloseHandle(hProcess);
+}
+
+void MainWindow::on_magnetShroomDeployCheckBox_stateChanged(int arg1)
+{
+    //获取进程
+    if(!readProcess())
+        return;
+    magnetShroomDeploy(arg1);
+
+    //释放句柄
+    CloseHandle(hProcess);
 }
