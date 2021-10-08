@@ -147,6 +147,19 @@
      <string>磁力菇部署</string>
     </property>
    </widget>
+   <widget class="QCheckBox" name="plantAtkBulletCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>270</y>
+      <width>91</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>子弹叠加</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

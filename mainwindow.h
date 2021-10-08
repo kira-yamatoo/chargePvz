@@ -31,6 +31,7 @@ public:
     void potatoMineDeploy(bool flag);
     void chomperDeploy(bool flag);
     void magnetShroomDeploy(bool flag);
+    void plantAtkBullet(bool flag);
 
     void test();
 
@@ -61,6 +62,8 @@ private slots:
     void on_chomperDeployCheckBox_stateChanged(int arg1);
 
     void on_magnetShroomDeployCheckBox_stateChanged(int arg1);
+
+    void on_plantAtkBulletCheckBox_stateChanged(int arg1);
 
 private:
     Ui::MainWindow *ui;

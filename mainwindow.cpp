@@ -208,6 +208,15 @@ void MainWindow:: magnetShroomDeploy(bool flag)
     hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufDisable));
 }
 
+void MainWindow:: plantAtkBullet(bool flag)
+{
+    DWORD baseAddress= PLANT_ATK_BULLET;    //植物攻击判定跳转基址
+    byte bufDisable[] = {0x0f,0x85,0x98,0xFE,0xFF,0xFF};   //jne 00472D82
+    byte *bufEnable= replaceWithNop(sizeof (bufDisable));
+
+    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufDisable));
+}
+
 void MainWindow::test()
 {
 //    int a = 40;
@@ -351,6 +360,17 @@ void MainWindow::on_magnetShroomDeployCheckBox_stateChanged(int arg1)
     if(!readProcess())
         return;
     magnetShroomDeploy(arg1);
+
+    //释放句柄
+    CloseHandle(hProcess);
+}
+
+void MainWindow::on_plantAtkBulletCheckBox_stateChanged(int arg1)
+{
+    //获取进程
+    if(!readProcess())
+        return;
+    plantAtkBullet(arg1);
 
     //释放句柄
     CloseHandle(hProcess);

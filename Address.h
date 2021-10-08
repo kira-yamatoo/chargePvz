@@ -16,5 +16,7 @@
 #define MAGNET_SHROOM_DEPLOY 0x0046F9EA    //磁力菇部署倒计时赋值基址
 #define KERNEL_PULT_LOCK_BUTTER 0x00   //玉米投手锁定黄油
 #define CATAPULT_ZOMBIE_ATK 0x0047CB99  //投石车僵尸减少植物HP基址
+#define PLANT_ATK_BULLET 0x00472EE4   //植物攻击判定跳转基址
+#define PLANT_LOCKED_ATK 0x00472CD9 //锁定植物攻击动作
 
 #endif // ADDRESS_H
