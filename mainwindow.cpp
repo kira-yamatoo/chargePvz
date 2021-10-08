@@ -58,10 +58,22 @@ void MainWindow:: init()
     coolDown(false);
     autoCollect(false);
 
+    doomShroomDeploy(false);
+    cobCannoDeploy(false);
+    potatoMineDeploy(false);
+    chomperDeploy(false);
+    magnetShroomDeploy(false);
+
     this->ui->sunNotDecreaseCheckBox->setCheckState(Qt::CheckState(false));
     this->ui->plantLockHPCheckBox->setCheckState(Qt::CheckState(false));
     this->ui->coolDownCheckBox->setCheckState(Qt::CheckState(false));
     this->ui->autoCollectCheckBox->setCheckState(Qt::CheckState(false));
+
+    this->ui->doomShroomCheckBox->setCheckState(Qt::CheckState(false));
+    this->ui->cobCannoDeployCheckBox->setCheckState(Qt::CheckState(false));
+    this->ui->potatoMineDeployCheckBox->setCheckState(Qt::CheckState(false));
+    this->ui->chomperDeployCheckBox->setCheckState(Qt::CheckState(false));
+    this->ui->magnetShroomDeployCheckBox->setCheckState(Qt::CheckState(false));
 
 
     //释放句柄
