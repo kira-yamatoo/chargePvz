@@ -160,6 +160,97 @@
      <string>子弹叠加</string>
     </property>
    </widget>
+   <widget class="QCheckBox" name="blockIceSurfaceCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>300</y>
+      <width>121</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>取消生成冰面</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="blockGravestoneCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>330</y>
+      <width>121</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>取消生成墓碑</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="blockFogCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>360</y>
+      <width>121</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>取消生成迷雾</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="backRunnerCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>390</y>
+      <width>91</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>后台运行</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="plantDeployLimitCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>270</y>
+      <width>121</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>解除种植限制</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="purpleCardLimitCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>300</y>
+      <width>121</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>解除紫卡限制</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="shroomAwakenCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>330</y>
+      <width>111</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>蘑菇免唤醒</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

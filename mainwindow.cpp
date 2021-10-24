@@ -6,6 +6,7 @@
 #include <MemoryUtil.h>
 #include <Address.h>
 
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -143,7 +144,7 @@ void MainWindow:: coolDown(bool flag)
 {
     DWORD baseAddress= COOL_DOWN;    //植物冷却flag基址
 
-    byte bufDisable[] = {0xC6,0x43,0x48,0x00};   //mov byte ptr [ebx+48],00
+    byte bufDisable[] = {0x7E,0x16};   //jle 0049CE1A
     byte *bufEnable= replaceWithNop(sizeof (bufDisable));
 
     hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufDisable));
@@ -217,31 +218,67 @@ void MainWindow:: plantAtkBullet(bool flag)
     hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufDisable));
 }
 
-void MainWindow::test()
+void MainWindow:: blockIceSurface(bool flag)
 {
-//    int a = 40;
-//    int b;
-//    asm ("movl %1, %%eax; \
-//    shr %%eax; \
-//    movl %%eax, %0;"
-//    : "=r" (b)
-//    : "r" (a)
-//    : "%eax");
-//    printf ("a = %d\nb = %d\n", a, b);
+    DWORD baseAddress= ICE_SURFACE;    //冰面赋值地址
+    byte bufDisable[] = {0xC7,0x84,0x90,0x3C,0x06,0x00,0x00,0xB8,0x0B,0x00,0x00};   //mov [eax+edx*4+0000063C],00000BB8 { 3000 }
+    byte *bufEnable= replaceWithNop(sizeof (bufDisable));
 
-//    __asm__("alloc(newmen,20)");
-//    __asm__("createthread(newmen)");
-//    __asm__("newmen:");
-//    __asm__("pushad");
-//    __asm__("push -1");
-//    __asm__("push 4");
-//    __asm__("mov eax,0");
-//    __asm__("mov ebp,[731C50]");
-//    __asm__("mov ebp,[ebp+868]");
-//    __asm__("push ebp");
-//    __asm__("call 004105A0");
-//    __asm__("popad");
-//    __asm__("ret");
+    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufDisable));
+}
+
+void MainWindow:: blockGravestone(bool flag)
+{
+    DWORD baseAddress= GRAVESTONE_GEN;    //墓碑生成地址
+    byte bufDisable[] = {0x74,0x96};   //je 004279D1
+    byte *bufEnable= replaceWithNop(sizeof (bufDisable));
+
+    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufDisable));
+}
+
+void MainWindow:: blockFog(bool flag)
+{
+    DWORD baseAddress= FOG_GEN;    //迷雾生成地址
+    byte bufDisable[] = {0x89,0x11};   //mov [ecx],edx
+    byte bufEnable[] = {0x89,0x01};   //mov [ecx],eax
+
+    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufDisable));
+}
+
+void MainWindow:: backRunner(bool flag)
+{
+    DWORD baseAddress= BACK_RUNNER;    //后台运行地址
+    byte bufDisable[] = {0x75,0x0F};   //jne 0045BFDB
+    byte bufEnable[] = {0xEB,0x0F};   //jmp 0045BFDB
+
+    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufDisable));
+}
+
+void MainWindow:: plantDeployLimit(bool flag)
+{
+    DWORD baseAddress= PLANT_DEPLOY_LIMIT;    //植物种植限制
+    byte bufDisable[] = {0x0F,0x84,0x46,0x09,0x00,0x00};   //je 0041C679
+    byte bufEnable[] = {0xE9,0x47,0x09,0x00,0x00,0x90};   //jmp 0041C679 nop
+
+    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufDisable));
+}
+void MainWindow:: purpleCardLimit(bool flag)
+{
+    DWORD baseAddress= PURPLE_CARD_LIMIT;    //紫卡限制
+    byte bufDisable[] = {0x75,0x16,0x8D,0x58,0xDF};   //jne 0042940E    lea ebx,[eax-21]
+    byte bufEnable[] = {0xE9,0xB4,0x00,0x00,0x00};   //jmp 004294AF
+
+    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufDisable));
+}
+
+void MainWindow:: shroomAwaken(bool flag)
+{
+    DWORD baseAddress= SHROOM_AWAKEN;    //蘑菇免唤醒
+    byte bufDisable[] = {0x74,0x1F};   //je 0046C1E3
+    byte bufEnable[] = {0xEB,0x1F};   //jmp 0046C1E3
+
+    hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufDisable));
+}
 
 }
 
@@ -371,6 +408,83 @@ void MainWindow::on_plantAtkBulletCheckBox_stateChanged(int arg1)
     if(!readProcess())
         return;
     plantAtkBullet(arg1);
+
+    //释放句柄
+    CloseHandle(hProcess);
+}
+
+void MainWindow::on_blockIceSurfaceCheckBox_stateChanged(int arg1)
+{
+    //获取进程
+    if(!readProcess())
+        return;
+    blockIceSurface(arg1);
+
+    //释放句柄
+    CloseHandle(hProcess);
+}
+
+void MainWindow::on_blockGravestoneCheckBox_stateChanged(int arg1)
+{
+    //获取进程
+    if(!readProcess())
+        return;
+    blockGravestone(arg1);
+
+    //释放句柄
+    CloseHandle(hProcess);
+}
+
+void MainWindow::on_blockFogCheckBox_stateChanged(int arg1)
+{
+    //获取进程
+    if(!readProcess())
+        return;
+    blockFog(arg1);
+
+    //释放句柄
+    CloseHandle(hProcess);
+}
+
+void MainWindow::on_backRunnerCheckBox_stateChanged(int arg1)
+{
+    //获取进程
+    if(!readProcess())
+        return;
+    backRunner(arg1);
+
+    //释放句柄
+    CloseHandle(hProcess);
+}
+
+void MainWindow::on_plantDeployLimitCheckBox_stateChanged(int arg1)
+{
+    //获取进程
+    if(!readProcess())
+        return;
+    plantDeployLimit(arg1);
+
+    //释放句柄
+    CloseHandle(hProcess);
+}
+
+void MainWindow::on_purpleCardLimitCheckBox_stateChanged(int arg1)
+{
+    //获取进程
+    if(!readProcess())
+        return;
+    purpleCardLimit(arg1);
+
+    //释放句柄
+    CloseHandle(hProcess);
+}
+
+void MainWindow::on_shroomAwakenCheckBox_stateChanged(int arg1)
+{
+    //获取进程
+    if(!readProcess())
+        return;
+    shroomAwaken(arg1);
 
     //释放句柄
     CloseHandle(hProcess);

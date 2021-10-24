@@ -32,6 +32,13 @@ public:
     void chomperDeploy(bool flag);
     void magnetShroomDeploy(bool flag);
     void plantAtkBullet(bool flag);
+    void blockIceSurface(bool flag);
+    void blockGravestone(bool flag);
+    void blockFog(bool flag);
+    void backRunner(bool flag);
+    void plantDeployLimit(bool flag);
+    void purpleCardLimit(bool flag);
+    void shroomAwaken(bool flag);
 
     void test();
 
@@ -64,6 +71,20 @@ private slots:
     void on_magnetShroomDeployCheckBox_stateChanged(int arg1);
 
     void on_plantAtkBulletCheckBox_stateChanged(int arg1);
+
+    void on_blockIceSurfaceCheckBox_stateChanged(int arg1);
+
+    void on_blockGravestoneCheckBox_stateChanged(int arg1);
+
+    void on_blockFogCheckBox_stateChanged(int arg1);
+
+    void on_backRunnerCheckBox_stateChanged(int arg1);
+
+    void on_plantDeployLimitCheckBox_stateChanged(int arg1);
+
+    void on_purpleCardLimitCheckBox_stateChanged(int arg1);
+
+    void on_shroomAwakenCheckBox_stateChanged(int arg1);
 
 private:
     Ui::MainWindow *ui;
