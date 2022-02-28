@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#undef   UNICODE
 #include <QMainWindow>
 #include <Windows.h>
 
@@ -20,6 +21,8 @@ public:
     void init();
     byte* replaceWithNop(int len);
     void hookFunction(bool flag, DWORD baseAddress, byte bufEnable[],byte bufDisable[],int len);
+    int getProcessHandleByName(char* name);
+    int getProcessHandleBywindow(char *name);
 
     void addSun();
     void sunNotDecrease(bool flag);
@@ -40,6 +43,7 @@ public:
     void purpleCardLimit(bool flag);
     void shroomAwaken(bool flag);
 
+    void injectCode();
     void test();
 
 

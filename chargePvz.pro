@@ -21,7 +21,6 @@ SOURCES += \
 
 HEADERS += \
     Address.h \
-    MemoryUtil.h \
     mainwindow.h
 
 FORMS += \

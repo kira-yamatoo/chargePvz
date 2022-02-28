@@ -3,9 +3,9 @@
 
 #include <QMessageBox>
 #include <QDebug>
-#include <MemoryUtil.h>
 #include <Address.h>
-
+#include "tlhelp32.h"
+#include <string.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -17,7 +17,8 @@ MainWindow::MainWindow(QWidget *parent)
     this->setFixedSize(800,600);
     this->setWindowIcon(QIcon());
 
-//    test();
+    char *name=0;
+    getProcessHandleByName(name);
 
     readProcess();
 
@@ -25,27 +26,60 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    init(); //退出时还原游戏
+//    init(); //退出时还原游戏
     delete ui;
 }
 
 bool MainWindow::readProcess()
 {
     DWORD dwPID= 0;
-    HWND hwnd= FindWindow(NULL,TEXT("Plants vs. Zombies"));
-    if(hwnd== NULL){
-        QMessageBox::warning(this,"提示","找不到窗口,请打开游戏",QMessageBox::Ok);
-        return false;
-    }
-//    GetModuleHandleA("PlantsVsZombies.exe");
+    dwPID= getProcessHandleByName("PlantsVsZombies.exe");
 
-    GetWindowThreadProcessId(hwnd, &dwPID);
     this->hProcess= OpenProcess(PROCESS_ALL_ACCESS,FALSE,dwPID);
-    if(hProcess== NULL){
+    if(!hProcess){
         QMessageBox::warning(this,"提示","找不到进程,请打开游戏",QMessageBox::Ok);
         return false;
     }
     return true;
+}
+
+int MainWindow:: getProcessHandleBywindow(char *name)
+{
+    DWORD dwPID= 0;
+    HWND hwnd= FindWindow(NULL,TEXT(name));
+    if(hwnd== NULL){
+        qDebug("FindWindow Error");
+        return -1;
+    }
+
+    return GetWindowThreadProcessId(hwnd, &dwPID);
+}
+
+int MainWindow::getProcessHandleByName(char* name)
+{
+    HANDLE hSnapShot= CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0);
+    if ( hSnapShot == INVALID_HANDLE_VALUE )
+    {
+        qDebug("CreateToolhelp32Snapshot Error");
+        return -1;
+    }
+
+    PROCESSENTRY32 stProcess;
+    stProcess.dwSize= sizeof(PROCESSENTRY32);
+//    memset(&stProcess,0,sizeof (PROCESSENTRY32));
+
+    bool flag= Process32First(hSnapShot, &stProcess);
+    while(flag){
+
+        if(lstrcmp(stProcess.szExeFile,name)==0)
+        {
+            return stProcess.th32ProcessID;
+        }
+        flag=Process32Next(hSnapShot, &stProcess);
+
+    };
+
+    return -1;
 }
 
 void MainWindow:: init()
@@ -280,6 +314,73 @@ void MainWindow:: shroomAwaken(bool flag)
     hookFunction(flag, baseAddress, bufEnable, bufDisable, sizeof (bufDisable));
 }
 
+void MainWindow:: injectCode()
+{
+    byte str[]={0x60,
+                0x6A,0xFF,
+                0x6A,0x03,
+                0xB8,0x01,0x00,0x00,0x00,
+                0x6A,0x01,
+                0x8B,0x3D,0x0C,0x5E,0x75,0x00,
+                0x8B,0xBF,0x68,0x08,0x00,0x00,
+                0x57,
+                0xE8,0x0C,0xF4,0xDE,0xE2,
+                0x61,
+                0xC3
+               };
+    int len=sizeof (str);
+
+    LPVOID dataAddr  =  VirtualAllocEx(hProcess, 0 , len,MEM_COMMIT,PAGE_EXECUTE_READWRITE);
+    // 在explorer的内存内里申请一块内存来存所用的数据
+//    THREADDATA data  =   {TEXT("a.exe"),(WINEXEC)GetProcAddress(user32Handle,"WinExec"),} ;
+
+    WriteProcessMemory(hProcess,dataAddr, &str, len, 0);
+    // 把数据写到申请的内存中
+
+    LPVOID codeAddr  =  VirtualAllocEx(hProcess, 0 ,1024*4,MEM_COMMIT,PAGE_EXECUTE_READWRITE);
+    // 申请代码的内存区
+
+    WriteProcessMemory(hProcess,codeAddr, &str, 1024*4, 0);
+    // 把代码写进去，这时我们己经把我们要用的代码和数据都准备好了。
+
+    HANDLE threadHandle  =  CreateRemoteThread(hProcess,NULL, 0 , (LPTHREAD_START_ROUTINE)codeAddr,dataAddr, 0 ,NULL);
+    // 创建远程线程，来执行启动abc.exe的代码。所需的数据都己经在explorer的内存块中，所以不会出问题。
+
+    WaitForSingleObject(threadHandle, INFINITE);
+    VirtualFreeEx(hProcess,dataAddr, 0 ,MEM_RELEASE);
+    VirtualFreeEx(hProcess,codeAddr, 0 ,MEM_RELEASE);
+    CloseHandle(threadHandle);
+    CloseHandle(hProcess);
+    // 等待执行完毕，释放内存，关闭句柄。
+
+//    LPVOID lpData = VirtualAllocEx(hProcess,
+//                                   NULL,
+//                                   sizeof(str),
+//                                   MEM_COMMIT | MEM_RESERVE,
+//                                   PAGE_READWRITE);
+//    DWORD dwWriteNum = 0;
+//    WriteProcessMemory(hProcess, lpData, &str, sizeof(str), &dwWriteNum);
+
+//    DWORD dwFunSize = 0x2000;
+//    LPVOID lpCode = VirtualAllocEx(hProcess,
+//                                   NULL,
+//                                   dwFunSize,
+//                                   MEM_COMMIT,
+//                                   PAGE_EXECUTE_READWRITE);
+//    WriteProcessMemory(hProcess, lpCode, str, dwFunSize, &dwWriteNum);
+
+//    HANDLE hRemoteThread = CreateRemoteThread(hProcess,
+//                                              NULL,
+//                                              0,
+//                                              (LPTHREAD_START_ROUTINE)lpCode,
+//                                              lpData,
+//                                              0,
+//                                              NULL);
+//    WaitForSingleObject(hRemoteThread, INFINITE);
+
+//    CloseHandle(hRemoteThread);
+
+//    CloseHandle(hProcess);
 }
 
 
